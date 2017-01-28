@@ -1,0 +1,75 @@
+{
+	"variables": [],
+	"info": {
+		"name": "polls",
+		"_postman_id": "2a2f1d95-8138-f8cc-d612-6b5d18825713",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create poll",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var data = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"pollId\", data.id);"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var uniq = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);",
+							"postman.setEnvironmentVariable(\"uniq\", uniq);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{apiserver}}/polls/",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"poll-{{uniq}}\",\n  \"options\": \"1,2,3,4,5\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "create vote",
+			"request": {
+				"url": "{{apiserver}}/polls/{{pollId}}/vote",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"option\": \"1\",\n  \"ip\": \"1.2.3.4\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "vote results",
+			"request": {
+				"url": "{{apiserver}}/polls/{{pollId}}/results",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"option\": \"3\",\n  \"ip\": \"1.2.3.4\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

@@ -10,9 +10,11 @@ from .models import Poll, Vote
 def wrap_exceptions(view):
     def _wrapped_view(request, *args, **kwargs):
         try:
-            return view(request, *args, **kwargs)
+            result = view(request, *args, **kwargs)
         except Exception as e:
-            return HttpResponse(json.dumps({'error': repr(e)}))
+            result = {'error': repr(e)}
+
+        return HttpResponse(json.dumps(result), content_type='application/json')
 
     return _wrapped_view
 
@@ -27,9 +29,7 @@ def create(request):
         options=data['options']
     )
 
-    result = {'id': poll.pk}
-
-    return HttpResponse(json.dumps(result), content_type='application/json')
+    return {'id': poll.pk}
 
 
 @wrap_exceptions
@@ -48,11 +48,10 @@ def vote(request, id):
         ip=data['ip']
     )
 
-    result = {'id': vote.pk}
-
-    return HttpResponse(json.dumps(result), content_type='application/json')
+    return {'id': vote.pk}
 
 
+@wrap_exceptions
 def results(request, id):
     poll = Poll.objects.get(pk=id)
     options = poll.options.split(',')
@@ -78,12 +77,10 @@ def results(request, id):
         'raw': {str(x.option): x.count for x in Poll.objects.raw(queries['raw'], [id])},
     }
 
-    result = [
+    return [
         {
             'name': option,
             'votes': options_count['raw'].get(option) or 0,
             'unique_votes': options_count['unique'].get(option) or 0,
         }
         for option in options]
-
-    return HttpResponse(json.dumps(result), content_type='application/json')
